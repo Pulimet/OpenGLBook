@@ -94,12 +94,12 @@ public class ShaderHelper {
         return programObjectId;
     }
 
-    public static boolean validateProgram(int programObjectId) {
+    public static void validateProgram(int programObjectId) {
         glValidateProgram(programObjectId);
         final int[] validateStatus = new int[1];
         glGetProgramiv(programObjectId, GL_VALIDATE_STATUS, validateStatus, 0);
         MyLog.d("Results of validating program: " + validateStatus[0]
                 + "\nLog:" + glGetProgramInfoLog(programObjectId));
-        return validateStatus[0] != 0;
+        //return validateStatus[0] != 0;
     }
 }
