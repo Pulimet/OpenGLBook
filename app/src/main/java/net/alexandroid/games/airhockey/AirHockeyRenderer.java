@@ -2,6 +2,7 @@ package net.alexandroid.games.airhockey;
 
 import android.content.Context;
 import android.opengl.GLSurfaceView;
+import android.opengl.Matrix;
 
 import net.alexandroid.games.airhockey.util.ShaderHelper;
 import net.alexandroid.games.airhockey.util.TextResourceReader;
@@ -30,7 +31,10 @@ import static android.opengl.GLES20.glUniformMatrix4fv;
 import static android.opengl.GLES20.glUseProgram;
 import static android.opengl.GLES20.glVertexAttribPointer;
 import static android.opengl.GLES20.glViewport;
-import static android.opengl.Matrix.orthoM;
+import static android.opengl.Matrix.multiplyMM;
+import static android.opengl.Matrix.rotateM;
+import static android.opengl.Matrix.setIdentityM;
+import static android.opengl.Matrix.translateM;
 
 
 class AirHockeyRenderer implements GLSurfaceView.Renderer {
@@ -51,6 +55,8 @@ class AirHockeyRenderer implements GLSurfaceView.Renderer {
     private final float[] projectionMatrix = new float[16];
     private int uMatrixLocation;
 
+    private final float[] modelMatrix = new float[16];
+
     private final Context context;
     private final FloatBuffer vertexData;
 
@@ -65,9 +71,9 @@ class AirHockeyRenderer implements GLSurfaceView.Renderer {
         this.context = context;
         float[] tableVerticesWithTriangles = {
                 // Triangle 1 - Border
-                -0.55f, -0.53f, 0.3f, 0.3f, 0.3f,
-                0.55f, 0.53f, 0.3f, 0.3f, 0.3f,
-                -0.55f, 0.53f, 0.3f, 0.3f, 0.3f,
+                -0.55f, -0.83f, 0.3f, 0.3f, 0.3f,
+                0.55f, 0.83f, 0.3f, 0.3f, 0.3f,
+                -0.55f, 0.83f, 0.3f, 0.3f, 0.3f,
                 // Triangle 2 - Border
                 -0.55f, -0.83f, 0.3f, 0.3f, 0.3f,
                 0.55f, -0.83f, 0.3f, 0.3f, 0.3f,
@@ -159,8 +165,7 @@ class AirHockeyRenderer implements GLSurfaceView.Renderer {
         MyLog.d("");
         // Set the OpenGL viewport to fill the entire surface.
         glViewport(0, 0, width, height);
-
-        //This code will create an orthographic projection matrix that will take the
+/*        //This code will create an orthographic projection matrix that will take the
         //screen’s current orientation into account.
         final float aspectRatio = width > height ?
                 (float) width / (float) height :
@@ -171,7 +176,17 @@ class AirHockeyRenderer implements GLSurfaceView.Renderer {
         } else {
         // Portrait or square
             orthoM(projectionMatrix, 0, -1f, 1f, -aspectRatio, aspectRatio, -1f, 1f);
-        }
+        }*/
+        Matrix.perspectiveM(projectionMatrix, 0, 45, (float) width / (float) height, 1f, 10f);
+        setIdentityM(modelMatrix, 0);
+
+        translateM(modelMatrix, 0, 0f, 0f, -3f);
+        rotateM(modelMatrix, 0, -60f, 1f, 0f, 0f);
+
+        final float[] temp = new float[16];
+        multiplyMM(temp, 0, projectionMatrix, 0, modelMatrix, 0);
+        System.arraycopy(temp, 0, projectionMatrix, 0, temp.length);
+
     }
 
     @Override
